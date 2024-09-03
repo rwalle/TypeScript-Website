@@ -22,6 +22,7 @@ Note:
 - [`@callback`](#typedef-callback-and-param)
 - [`@template`](#template)
 - [`@satisfies`](#satisfies)
+- [`@overload`](#overload)
 
 
 #### Classes
@@ -43,6 +44,7 @@ Documentation tags work in both TypeScript and JavaScript.
 
 #### Other
 
+- [`@import`](#import)
 - [`@enum`](#enum)
 - [`@author`](#author)
 - [Other supported patterns](#other-supported-patterns)
@@ -240,6 +242,8 @@ export const userAccount = {
 var x = require("./accounts").userAccount;
 ```
 
+Also see [`@import`](#import).
+
 ### `@param` and `@returns`
 
 `@param` uses the same type syntax as `@type`, but adds a parameter name.
@@ -403,7 +407,7 @@ let c = new Cache()
 
 ### `@satisfies`
 
-`@satisfies` provides access to the postfix [operator `satisfies`](/docs/handbook/release-notes/typescript-4-9.html) in TypeScript. Satisfies is used to declare that a value implements a type but does not affect the type of the value. 
+`@satisfies` provides access to the postfix [operator `satisfies`](/docs/handbook/release-notes/typescript-4-9.html) in TypeScript. Satisfies is used to declare that a value implements a type but does not affect the type of the value.
 
 ```js twoslash
 // @errors: 1360
@@ -424,6 +428,38 @@ const messageUsingType = "hello world"
 //     ^?
 ```
 
+### `@overload`
+
+ Overloads give us a way to say that a function can be called with different arguments, and possibly return different results. They can restrict how callers can actually use our functions, and refine what results they'll get back.
+
+ TypeScript allows JSDoc to declare overloads with a `@overload` tag. Each JSDoc comment with an `@overload` tag is treated as a distinct overload for the following function declaration.
+
+```js twoslash
+/**
+ * @overload
+ * @param {string} value
+ * @return {void}
+ */
+/**
+ * @overload
+ * @param {number} value
+ * @param {number} [maximumFractionDigits]
+ * @return {void}
+ */
+/**
+ * @param {string | number} value
+ * @param {number} [maximumFractionDigits]
+ */
+function printValue(value, maximumFractionDigits) {
+    if (typeof value === "number") {
+        const formatter = Intl.NumberFormat("en-US", {
+            maximumFractionDigits,
+        });
+        value = formatter.format(value);
+    }
+    console.log(value);
+}
+```
 
 ## Classes
 
@@ -667,6 +703,44 @@ function box<U>(u: U): Box<U> {
 ```
 
 ## Other
+
+### `@import`
+
+TypeScript supports a `@import` comment tag that has the same syntax as ECMAScript imports.
+
+```js twoslash
+/** @import { SomeType } from "some-module" */
+
+/**
+ * @param {SomeType} myValue
+ */
+function doSomething(myValue) {
+    // ...
+}
+```
+
+Here, we used named imports. This is equivalent to "import type"
+
+```js twoslash
+/**
+ * @typedef {import("./some-module").SomeType} SomeType
+ */
+```
+
+The `@import` tag has the advantage of being more concise when multiple named symbols are imported from the same module.
+
+We could also have written our import as a namespace import.
+
+```js twoslash
+/** @import * as someModule from "some-module" */
+
+/**
+ * @param {someModule.SomeType} myValue
+ */
+function doSomething(myValue) {
+    // ...
+}
+```
 
 ### `@enum`
 
